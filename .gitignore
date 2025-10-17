@@ -38,3 +38,6 @@ views/**/*.bak.*
 
 # Temp upload artifacts
 .tmp*/
+
+# Temp upload artifacts
+.tmp*/
