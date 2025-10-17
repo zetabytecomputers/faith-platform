@@ -29,3 +29,9 @@ pnpm-debug.log*
 *.swp
 .vscode/
 .idea/
+# Backups & temps
+backups/
+*.bak
+*.bak.*
+*.tmp
+views/**/*.bak.*
