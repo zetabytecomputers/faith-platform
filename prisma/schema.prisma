@@ -1,0 +1,27 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "mysql"; url = env("DATABASE_URL") }
+
+enum PublishStatus { DRAFT PUBLISHED UNDER_REVIEW HELD REMOVED }
+
+model User {
+  id          String     @id @default(cuid())
+  email       String     @unique
+  displayName String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  testimonies Testimony[]
+}
+
+model Testimony {
+  id         String        @id @default(cuid())
+  slug       String        @unique
+  title      String
+  lead       String?
+  body       String
+  tags       String[]
+  status     PublishStatus @default(PUBLISHED)
+  author     User          @relation(fields: [authorId], references: [id])
+  authorId   String
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+}

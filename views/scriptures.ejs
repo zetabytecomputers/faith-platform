@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head><%- include('partials/head',{ title:'Scripture & Reflections — Share Light', canonical: SITE + '/scriptures', ogType:'website' }) %></head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="/"><span class="dot"></span><span>Share Light</span></a>
+    <div class="actions">
+      <a class="btn outline" href="/testimonies">Stories</a>
+      <a class="btn brand" href="/submit">Share</a>
+      <button class="btn theme-toggle" onclick="__toggleTheme()">🌓</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section style="padding:18px 0">
+    <h1 class="h1" style="margin:0 0 8px">Scripture & Reflections</h1>
+    <p class="lead">Daily verse and a growing library cross-linked to testimonies.</p>
+
+    <div class="card">
+      <div class="kicker">Daily scripture</div>
+      <h3>“I can do all things through Christ which strengtheneth me.”</h3>
+      <div class="help">Philippians 4:13 (placeholder)</div>
+      <div style="margin-top:8px">
+        <a class="chip" href="/testimonies">Related testimonies</a>
+        <a class="chip" href="/submit">Add your reflection</a>
+      </div>
+    </div>
+
+    <div class="grid cols-3" style="margin-top:16px">
+      <% for(let i=0;i<6;i++){ %>
+      <div class="card">
+        <strong>Verse Topic <%= i+1 %></strong>
+        <div class="help">Short description & cross-links.</div>
+        <div style="margin-top:8px">
+          <a class="chip" href="/testimonies">See stories</a>
+        </div>
+      </div>
+      <% } %>
+    </div>
+    <%- include('partials/license') %>
+  </section>
+</main>
+
+<footer class="footer"><div class="container">© <%= new Date().getFullYear() %> Share Light</div></footer>
+  <div class="deploy-stamp-banner" style="margin:1rem auto;max-width:1100px;color:#6b7280;font-size:.85rem">Deployed: <%= (typeof buildStamp !== 'undefined' ? buildStamp : '2025-10-17T06:55:59Z') %></div>
+</body>
+</html>

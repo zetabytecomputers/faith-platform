@@ -1,0 +1,36 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Share Your Testimony — Share Light</title>
+<link rel="canonical" href="<%= SITE %>/submit"/>
+<style>body{font-family:ui-sans-serif,system-ui;margin:0} .wrap{max-width:760px;margin:0 auto;padding:16px} input,textarea{padding:8px;border:1px solid #cbd5e1;border-radius:8px;width:100%} button{background:#4f46e5;color:#fff;padding:8px 12px;border:none;border-radius:8px}</style>
+</head><body>
+<header class="wrap"><a href="/" style="font-weight:700">Share Light</a></header>
+<main class="wrap">
+  <h1>Share Your Testimony</h1>
+  <form id="f" onsubmit="return submitForm(event)" style="display:grid;gap:10px">
+    <input name="title" placeholder="Title" required minlength="8"/>
+    <input name="lead" placeholder="Lead (optional)"/>
+    <textarea name="body" placeholder="Describe what happened and how you felt Christ’s love." required minlength="120" rows="12"></textarea>
+    <input name="tags" placeholder="healing, hope, repentance"/>
+    <small>By submitting, you agree to publish under <b>CC BY-NC-SA</b>.</small>
+    <button>Submit</button>
+    <p id="msg" style="color:#334155"></p>
+  </form>
+</main>
+<script>
+async function submitForm(e){
+  e.preventDefault()
+  const fd=new FormData(e.target)
+  const payload={
+    title:fd.get('title'), lead:fd.get('lead'),
+    body:fd.get('body'), tags:String(fd.get('tags')||'').split(',').map(s=>s.trim()).filter(Boolean)
+  }
+  const r=await fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  const j=await r.json()
+  document.getElementById('msg').textContent = r.ok? 'Submitted! Thank you.' : (j.error||'Something went wrong.')
+  if(r.ok) setTimeout(()=>location.href='/t/'+j.slug, 800)
+  return false
+}
+</script>
+  <div class="deploy-stamp-banner" style="margin:1rem auto;max-width:1100px;color:#6b7280;font-size:.85rem">Deployed: <%= (typeof buildStamp !== 'undefined' ? buildStamp : '2025-10-17T06:55:59Z') %></div>
+</body></html>

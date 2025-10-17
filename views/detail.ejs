@@ -1,0 +1,109 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title><%= t.title %> — Share Light</title>
+<link rel="canonical" href="<%= SITE %>/t/<%= encodeURIComponent(t.title.toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-')) %>"/>
+<meta name="description" content="<%= t.lead || 'Living testimonies of Jesus Christ.' %>"/>
+<meta property="og:type" content="article"/>
+<meta property="og:title" content="<%= t.title %> — Share Light"/>
+<meta property="og:description" content="<%= t.lead || 'Living testimonies of Jesus Christ.' %>"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<style>body{font-family:ui-sans-serif,system-ui;margin:0} .wrap{max-width:800px;margin:0 auto;padding:16px}</style>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Article",
+  "headline":"<%= t.title %>",
+  "dateModified":"<%= new Date().toISOString() %>",
+  "author":{"@type":"Organization","name":"Share Light"},
+  "mainEntityOfPage":"<%= SITE %>/t/<%= encodeURIComponent(t.title.toLowerCase().replace(/[^a-z0-9\\s-]/g,'').trim().replace(/\\s+/g,'-')) %>"
+}
+</script>
+</head><body>
+<header class="wrap"><a href="/" style="font-weight:700">Share Light</a></header>
+<main class="wrap">
+  <h1 style="font-size:30px;font-weight:800"><%= t.title %></h1>
+  <% if (t.lead) { %><p style="color:#475569"><%= t.lead %></p><% } %>
+  <div><%- t.body %></div>
+  <div style="margin-top:12px;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px">
+    Licensed under <b>CC BY-NC-SA</b>. Please attribute the author and link back.
+  </div>
+
+  <div style="margin:12px 0">
+    <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(SITE+'/t/'+encodeURIComponent(t.title.toLowerCase().replace(/[^a-z0-9\\s-]/g,'').trim().replace(/\\s+/g,'-'))) %>" target="_blank" rel="noopener">Share on Facebook</a> ·
+    <a href="https://twitter.com/intent/tweet?text=<%= encodeURIComponent(t.title) %>&url=<%= encodeURIComponent(SITE+'/t/'+encodeURIComponent(t.title.toLowerCase().replace(/[^a-z0-9\\s-]/g,'').trim().replace(/\\s+/g,'-'))) %>" target="_blank" rel="noopener">Share on X</a>
+  </div>
+
+  <hr/>
+  <div id="react">
+    <form onsubmit="return doReact(event)">
+      <input type="hidden" name="testimonyId" value="<%= t.id %>"/>
+      <button name="type" value="amen">🙏 Amen</button>
+      <button name="type" value="felt_this">💗 I Felt This</button>
+      <button name="type" value="beautiful">🌟 Beautiful</button>
+    </form>
+    <div id="rcounts"></div>
+  </div>
+
+  <div style="margin-top:10px">
+    <details>
+      <summary>Report this post</summary>
+      <form onsubmit="return doFlag(event)">
+        <input type="hidden" name="targetType" value="post"/>
+        <input type="hidden" name="targetId" value="<%= t.id %>"/>
+        <select name="reason">
+          <option value="disrespect">Disrespect</option>
+          <option value="hate">Hate</option>
+          <option value="spam">Spam</option>
+          <option value="off-topic">Off-topic</option>
+          <option value="other">Other</option>
+        </select>
+        <button>Submit report</button>
+      </form>
+    </details>
+  </div>
+
+  <div style="margin-top:20px">
+    <h3>Comments</h3>
+    <form onsubmit="return doComment(event)">
+      <input type="hidden" name="testimonyId" value="<%= t.id %>"/>
+      <textarea name="body" required minlength="8" placeholder="Share something uplifting…" rows="4" style="width:100%"></textarea>
+      <button>Post Comment</button>
+    </form>
+    <p style="font-size:12px;color:#64748b">Comments are held for review to keep the tone reverent.</p>
+  </div>
+
+  <pre style="font-size:12px;white-space:pre-wrap;background:#f8fafc;padding:8px;border-radius:8px">
+Attribution example:
+“<%= t.title %>”, Share Light — <%= SITE %>/t/<%- encodeURIComponent(t.title.toLowerCase().replace(/[^a-z0-9\\s-]/g,'').trim().replace(/\\s+/g,'-')) %>, licensed CC BY-NC-SA 4.0.
+  </pre>
+</main>
+<script>
+async function doReact(e){
+  e.preventDefault()
+  const fd = new FormData(e.target)
+  const res = await fetch('/api/react',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(fd))})
+  const j = await res.json()
+  if(j.counts){
+    document.getElementById('rcounts').textContent = j.counts.map(r=>r.type+': '+r.c).join(' · ')
+  }
+  return false
+}
+async function doFlag(e){
+  e.preventDefault()
+  const fd = new FormData(e.target)
+  await fetch('/api/flag',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(fd))})
+  alert('Thanks for the report. Our moderators will review it.')
+  return false
+}
+async function doComment(e){
+  e.preventDefault()
+  const fd = new FormData(e.target)
+  const res = await fetch('/api/comment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(fd))})
+  const j = await res.json()
+  alert(res.ok ? 'Comment submitted for review.' : (j.error||'Error'))
+  if(res.ok) e.target.reset()
+  return false
+}
+</script>
+  <div class="deploy-stamp-banner" style="margin:1rem auto;max-width:1100px;color:#6b7280;font-size:.85rem">Deployed: <%= (typeof buildStamp !== 'undefined' ? buildStamp : '2025-10-17T06:55:59Z') %></div>
+</body></html>
