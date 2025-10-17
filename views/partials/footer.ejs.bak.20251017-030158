@@ -1,6 +1,0 @@
-<footer class="site-footer">
-  <div class="wrap">
-    <small>&copy; <%= new Date().getFullYear() %> jesus-is-the-christ.org — The Light of Christ</small>
-  </div>
-  <p style="margin-top:.5rem;color:#6b7280;font-size:.85rem">Deployed: <%= (typeof buildStamp !== 'undefined' ? buildStamp : '2025-10-17T06:55:59Z') %></p>
-</footer>
