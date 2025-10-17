@@ -1,48 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title><%= (typeof title !== 'undefined' ? title : 'Images') %> · <%= (typeof brand !== 'undefined' ? brand : 'Jesus Is The Christ') %></title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root { --ink:#0f172a; --muted:#48566a; --line:#e7ecf3; --bg:#fafbff; }
-    body { margin:0; color:var(--ink); background:var(--bg); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
-    .wrap { max-width:1100px; margin:0 auto; padding:1rem; }
-    .grid { display:grid; grid-template-columns:1fr; gap:1rem; }
-    @media (min-width:900px){ .grid { grid-template-columns:repeat(3,1fr); } }
-    .thumb { display:block; background:#fff; border:1px solid var(--line); border-radius:12px; padding:1rem; text-decoration:none; color:inherit; }
-    .thumb span { display:block; margin-top:.5rem; color:var(--muted); }
-    .hero { padding:2rem 0 1rem; }
-  </style>
-  <link rel="stylesheet" href="/assets/site.css" />
+  <%- include('partials/head') %>
+  <title>Images · <%= (typeof brand!=='undefined'?brand:'Jesus Is The Christ') %></title>
 </head>
 <body>
   <%- include('partials/header') %>
 
   <main class="wrap">
-    <section class="hero">
-      <h1><%= (typeof title !== 'undefined' ? title : 'Images') %></h1>
-      <p class="sub">Curated image links.</p>
+    <section class="hero hero--sm">
+      <h1>Images</h1>
+      <p>Visuals that uplift and inspire.</p>
     </section>
 
-    <% 
-      // Build a safe list: prefer "items" if provided; otherwise use res.locals.imagesItems; else empty.
-      var itemsList = (typeof items !== 'undefined' && Array.isArray(items) && items.length)
-        ? items
-        : ((typeof imagesItems !== 'undefined' && Array.isArray(imagesItems)) ? imagesItems : []);
-    %>
-
-    <section class="section" aria-label="Images">
-      <div class="grid cols-3">
+    <section class="section">
+      <% 
+        var itemsList = (typeof items !== 'undefined' && Array.isArray(items) && items.length)
+          ? items
+          : ((typeof imagesItems !== 'undefined' && Array.isArray(imagesItems) && imagesItems.length) ? imagesItems : []);
+      %>
+      <div class="grid cols-3" style="margin-top:10px">
         <% itemsList.forEach(function(img){ %>
           <a class="thumb" href="<%= (img && img.href) ? img.href : '#' %>">
-            <strong><%= (img && img.title) ? img.title : '' %></strong>
-            <span><%= (img && img.caption) ? img.caption : '' %></span>
+            <span><%= (img && img.title) ? img.title : '' %></span>
           </a>
-        <% }); %>
-        <% if (!(itemsList && itemsList.length)) { %>
-          <div class="thumb"><strong>No images yet.</strong><span>Add some in code or locals.</span></div>
-        <% } %>
+        <% }) %>
       </div>
     </section>
   </main>

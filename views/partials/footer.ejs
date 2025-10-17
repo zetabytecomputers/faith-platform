@@ -1,6 +1,8 @@
 <footer class="site-footer">
   <div class="wrap">
-    <p>&copy; <%= new Date().getFullYear() %> <%= (typeof brand!=='undefined'?brand:'Jesus Is The Christ') %>. <span class="sub"><%= (typeof tagline!=='undefined'?tagline:'The Light of Christ') %></span></p>
-    <p class="meta">Last generated: <%= new Date().toISOString() %></p>
+    <p>
+      &copy; <%= new Date().getFullYear() %> <%= (typeof brand!=='undefined'?brand:'Jesus Is The Christ') %>
+      • <span class="ts"><%= new Date().toLocaleString() %></span>
+    </p>
   </div>
 </footer>
