@@ -1,0 +1,12 @@
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Home">The Light of Christ</a>
+    <nav class="nav">
+      <a href="/"          class="<%= (page==='home')      ? 'active' : '' %>">Home</a>
+      <a href="/stories"   class="<%= (page==='stories')   ? 'active' : '' %>">Stories</a>
+      <a href="/images"    class="<%= (page==='images')    ? 'active' : '' %>">Images</a>
+      <a href="/videos"    class="<%= (page==='videos')    ? 'active' : '' %>">Videos</a>
+      <a href="/favorites" class="<%= (page==='favorites') ? 'active' : '' %>">Favorite Scriptures</a>
+    </nav>
+  </div>
+</header>

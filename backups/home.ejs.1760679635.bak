@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head><%- include('partials/head',{ title:'Share Light — Strengthen Faith in Jesus Christ', canonical: SITE }) %></head>
+  <body>
+    <%- include('partials/nav') %>
+
+    <main class="container">
+      <!-- Rotating Hero (edit slides in server.js data) -->
+      <section class="section">
+        <div class="hero-rotator">
+          <% (heroSlides || []).forEach((h, idx)=>{ %>
+            <div class="hero-slide <%= idx===0?'active':'' %>">
+              <div class="kicker"><%= h.kicker %></div>
+              <h1 class="hero-h1"><%= h.title %></h1>
+              <p class="hero-lead"><%= h.lead %></p>
+              <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+                <% (h.ctas || []).forEach(c=>{ %>
+                  <a class="btn <%= c.kind==='brand'?'brand':'outline' %>" href="<%= c.href %>"><%= c.label %></a>
+                <% }) %>
+              </div>
+            </div>
+          <% }) %>
+          <div class="hero-dots">
+            <% (heroSlides || []).forEach((_, idx)=>{ %><button class="hero-dot <%= idx===0?'active':'' %>" aria-label="Slide <%= idx+1 %>"></button><% }) %>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mission / Invite -->
+      <section class="section">
+        <div class="card">
+          <div class="kicker">Purpose</div>
+          <p class="hero-lead" style="margin:.25rem 0 1rem">
+            A Christ-centered, community-driven platform to share <strong>stories</strong>, <strong>images</strong>, and <strong>videos</strong> that build faith in Jesus Christ.
+            Every visitor is invited to contribute and share. CC BY-NC-SA licensing keeps it shareable and protected.
+          </p>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+            <a class="btn brand" href="/submit">✍️ Share Your Message</a>
+            <a class="btn outline" href="/images">🖼️ Upload an Image</a>
+            <a class="btn outline" href="/videos">🎥 Upload a Video</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scripture of the Day -->
+      <section class="section">
+        <div class="card">
+          <div class="kicker">Scripture of the Day</div>
+          <h3 style="margin:.35rem 0 0"><%= scriptureOfDay.text %></h3>
+          <div class="help"><%= scriptureOfDay.ref %></div>
+        </div>
+      </section>
+
+      <!-- Top Stories -->
+      <section class="section">
+        <div class="card">
+          <div class="kicker">Top Stories</div>
+          <div class="grid cols-3" style="margin-top:10px">
+            <% (topStories || []).forEach(s=>{ %>
+              <a class="thumb" href="/t/<%= s.slug %>"><span><%= s.title %></span></a>
+            <% }) %>
+          </div>
+        </div>
+      </section>
+
+      <!-- Top Videos -->
+      <section class="section">
+        <div class="card">
+          <div class="kicker">Top Videos</div>
+          <div class="grid cols-3" style="margin-top:10px">
+            <% topVideos.forEach(v=>{ %>
+              <a class="thumb" href="<%= v.href %>"><span><%= v.title %></span></a>
+            <% }) %>
+          </div>
+        </div>
+      </section>
+
+      <!-- Top Images -->
+      <section class="section">
+        <div class="card">
+          <div class="kicker">Top Images</div>
+          <div class="grid cols-3" style="margin-top:10px">
+            <% topImages.forEach(img=>{ %>
+              <a class="thumb" href="<%= img.href %>"><span><%= img.title %></span></a>
+            <% }) %>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">© <%= new Date().getFullYear() %> Share Light</div>
+    </footer>
+  </body>
+</html>

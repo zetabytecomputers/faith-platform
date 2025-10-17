@@ -1,0 +1,26 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<%
+  const _title   = (typeof title !== 'undefined' && title) ? title : "Share Light — Faith Stories in Jesus Christ";
+  const _desc    = (typeof description !== 'undefined' && description) ? description : "A Christ-centered, community-built library of testimonies, images, and scripture reflections.";
+  const _canon   = (typeof canonical !== 'undefined' && canonical) ? canonical : SITE;
+  const _ogType  = (typeof ogType !== 'undefined' && ogType) ? ogType : 'website';
+  const _ogTitle = (typeof ogTitle !== 'undefined' && ogTitle) ? ogTitle : _title;
+  const _ogDesc  = (typeof ogDescription !== 'undefined' && ogDescription) ? ogDescription : _desc;
+  const _ogImage = (typeof ogImage !== 'undefined' && ogImage) ? ogImage : (SITE + '/img/og-default.jpg');
+%>
+<title><%= _title %></title>
+<meta name="description" content="<%= _desc %>" />
+<link rel="canonical" href="<%= _canon %>">
+
+<meta property="og:type" content="<%= _ogType %>">
+<meta property="og:title" content="<%= _ogTitle %>">
+<meta property="og:description" content="<%= _ogDesc %>">
+<meta property="og:url" content="<%= _canon %>">
+<meta property="og:image" content="<%= _ogImage %>">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="/css/site.css" />
+<script defer src="/js/theme.js"></script>
+<script defer src="/js/share.js"></script>
+<script defer src="/js/hero.js"></script>

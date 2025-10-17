@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head><%- include('partials/head',{ title:'Images — Share Light', canonical: SITE + '/images' }) %></head>
+  <body>
+    <%- include('partials/nav') %>
+    <main class="container">
+      <section class="section">
+        <div class="card">
+          <div class="kicker">Images</div>
+          <h1 class="hero-h1" style="margin:.2rem 0 .6rem">Christ-Centered Image Library</h1>
+          <%- include('partials/catbar',{ base:'/images', cats: imageCats }) %>
+        </div>
+      </section>
+      <section class="section">
+        <div class="grid cols-3">
+          <% items.forEach(img=>{ %>
+            <a class="thumb" href="<%= img.href %>"><span><%= img.title %></span></a>
+          <% }) %>
+        </div>
+      </section>
+    </main>
+    <footer class="footer"><div class="container">© <%= new Date().getFullYear() %> Share Light</div></footer>
+  </body>
+</html>

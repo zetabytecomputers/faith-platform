@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title><%= (title || 'Home') %> · <%= brand %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --ink:#0f172a; --muted:#48566a; --line:#e7ecf3; --bg:#fafbff; --accent:#0ea5e9; }
+    body { margin:0; color:var(--ink); background:var(--bg); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+    .wrap { max-width:1100px; margin:0 auto; padding:1rem; }
+    .site-header .brand { display:flex; align-items:baseline; gap:.75rem; }
+    .brand-name { font-weight:700; }
+    .tagline { color:var(--muted); font-size:.95rem; }
+    .main-nav ul { display:flex; gap:1rem; list-style:none; padding:0; margin:.75rem 0 0; }
+    .main-nav a { text-decoration:none; color:var(--ink); }
+    .main-nav .active a { border-bottom:2px solid var(--accent); }
+
+    /* Slightly larger hero */
+    .hero { padding:4.25rem 0 3rem; background:#fff; border-bottom:1px solid var(--line); }
+    .hero h1 { margin:0 0 .5rem; font-size:2.2rem; }
+
+    .sod { margin-top:1rem; padding:1rem; background:#fff; border:1px solid var(--line); border-radius:12px; }
+    .sod .ref { color:var(--muted); font-size:.95rem; margin-top:.5rem; }
+
+    .grid { display:grid; grid-template-columns:1fr; gap:1rem; padding:2rem 0; }
+    @media (min-width:900px){ .grid { grid-template-columns:2fr 1fr; } }
+  </style>
+</head>
+<body>
+  <% include("../partials/header"); %>
+  <main class="wrap">
+    <section class="hero" aria-labelledby="home-hero">
+      <h1 id="home-hero"><%= brand %></h1>
+      <p class="sub"><%= tagline %></p>
+    </section>
+    <section class="grid">
+      <article>
+        <h2>Scripture of the Day</h2>
+        <div class="sod">
+          <p><%= scriptureOfDay.text %></p>
+          <p class="ref"><%= scriptureOfDay.ref %></p>
+        </div>
+      </article>
+      <aside>
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="/favorites">Favorite Scriptures</a></li>
+          <li><a href="/images">Images</a></li>
+          <li><a href="/videos">Videos</a></li>
+        </ul>
+      </aside>
+    </section>
+  </main>
+  <% include("../partials/footer"); %>
+</body>
+</html>

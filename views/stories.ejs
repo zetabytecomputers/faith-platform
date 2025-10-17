@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head><%- include('partials/head',{ title:'Stories — Share Light', canonical: SITE + '/stories' }) %></head>
+  <body>
+    <%- include('partials/nav') %>
+    <main class="container">
+      <section class="section">
+        <div class="card">
+          <div class="kicker">Stories</div>
+          <h1 class="hero-h1" style="margin:.2rem 0 .6rem">Browse Testimonies</h1>
+          <%- include('partials/catbar',{ base:'/stories', cats: storyCats }) %>
+        </div>
+      </section>
+      <section class="section">
+        <div class="grid cols-3">
+          <% items.forEach(s=>{ %>
+            <a class="thumb" href="/t/<%= s.slug %>"><span><%= s.title %></span></a>
+          <% }) %>
+        </div>
+      </section>
+    </main>
+    <footer class="footer"><div class="container">© <%= new Date().getFullYear() %> Share Light</div></footer>
+  <div class="deploy-stamp-banner" style="margin:1rem auto;max-width:1100px;color:#6b7280;font-size:.85rem">Deployed: <%= (typeof buildStamp !== 'undefined' ? buildStamp : '2025-10-17T06:55:59Z') %></div>
+  </body>
+</html>

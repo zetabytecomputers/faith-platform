@@ -1,0 +1,30 @@
+<%- include('./partials/header', { page: (typeof page!=='undefined' ? page : 'favorites') }) %>
+
+<main class="wrap">
+  <section class="hero hero--sm">
+    <h1><%= (typeof title!=='undefined' ? title : 'Favorite Scriptures') %></h1>
+    <p class="lead">A small collection of verses that lift and guide. You can update this list anytime.</p>
+  </section>
+
+  <section class="cards" style="margin-top:1rem">
+    <div class="grid cols-2">
+      <%
+        var list = (Array.isArray(favoritesScriptures) && favoritesScriptures.length)
+          ? favoritesScriptures
+          : [
+              { ref: 'Philippians 4:13', text: 'I can do all things through Christ which strengtheneth me.' },
+              { ref: 'Mosiah 2:41', text: 'Consider on the blessed and happy state of those that keep the commandments of God.' },
+              { ref: 'John 14:27', text: 'Peace I leave with you, my peace I give unto you.' }
+            ];
+        list.forEach(function(v){
+      %>
+        <div class="card">
+          <h3 style="margin:.25rem 0 0"><%= v.ref %></h3>
+          <p><%= v.text %></p>
+        </div>
+      <% }) %>
+    </div>
+  </section>
+</main>
+
+<%- include('./partials/footer') %>

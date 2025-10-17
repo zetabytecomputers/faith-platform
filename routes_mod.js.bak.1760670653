@@ -1,0 +1,17 @@
+module.exports = (app, pool) => {
+  app.get('/admin/mod/approve', async (req,res) => {
+    try {
+      const { comment_id, token } = req.query
+      if (!token || token !== process.env.MOD_TOKEN) return res.status(403).send('Forbidden')
+      if (!comment_id) return res.status(400).send('Missing comment_id')
+
+      const [result] = await pool.execute(
+        "UPDATE Comment SET status='published' WHERE id=? AND status='held'",
+        [String(comment_id)]
+      )
+      res.json({ ok: true, comment_id, changed: result?.affectedRows ?? 0 })
+    } catch (e) {
+      res.status(500).json({ error: String(e?.message || e) })
+    }
+  })
+}

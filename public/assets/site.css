@@ -1,0 +1,43 @@
+:root{
+  --ink:#0f172a; --ink-2:#1f2937; --muted:#475569; --line:#e6edf5; --bg:#fafbff; --card:#ffffff;
+  --accent:#0ea5e9; --accent-ink:#075985;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{color:var(--ink);background:var(--bg);font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans",sans-serif}
+a{color:inherit;text-underline-offset:3px}
+.wrap{max-width:1120px;margin:0 auto;padding:1rem}
+.sub{color:var(--muted)}
+.kicker{font-size:.825rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+/* Header */
+.site-header{background:var(--card);border-bottom:1px solid var(--line)}
+.site-header .brand{display:flex;align-items:baseline;gap:.6rem}
+.brand-name{font-weight:700;font-size:1.15rem}
+.tagline{color:var(--muted);font-size:.95rem}
+.main-nav ul{display:flex;gap:1rem;list-style:none;margin:.75rem 0 0;padding:0}
+.main-nav a{text-decoration:none;padding:.25rem}
+.main-nav .active a{border-bottom:2px solid var(--accent)}
+
+/* Hero */
+.hero{padding:2.25rem 0 1.25rem;background:var(--card);border-bottom:1px solid var(--line)}
+.hero--lg{padding:4.5rem 0 2.25rem}
+.hero h1{margin:0 0 .5rem;font-weight:700;font-size:2rem}
+@media(min-width:900px){ .hero h1{font-size:2.4rem} }
+
+/* Grids & cards */
+.grid{display:grid;gap:1rem}
+.cols-2{grid-template-columns:1fr; } @media(min-width:800px){ .cols-2{grid-template-columns:1fr 1fr} }
+.cols-3{grid-template-columns:1fr;} @media(min-width:900px){ .cols-3{grid-template-columns:repeat(3,1fr)} }
+.card,.thumb{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem}
+.thumb{display:block;text-decoration:none}
+.thumb strong{display:block;color:var(--ink-2)}
+.thumb span{display:block;margin-top:.35rem;color:var(--muted)}
+
+/* Scripture of the Day */
+.sod{margin-top:1rem;padding:1rem;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.sod .ref{color:var(--muted);font-size:.95rem;margin-top:.5rem}
+
+/* Footer */
+.site-footer{border-top:1px solid var(--line);background:#fff}
+.site-footer .meta{color:var(--muted);font-size:.9rem}

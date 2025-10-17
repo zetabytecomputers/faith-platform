@@ -1,0 +1,247 @@
+require("dotenv").config();
+const express = require('express')
+const helmet = require('helmet')
+const compression = require('compression')
+const rateLimit = require('express-rate-limit')
+const sanitizeHtml = require('sanitize-html')
+const slugify = require('slugify')
+const mysql = require('mysql2/promise')
+const path = require('path')
+
+const app = express()
+app.set('trust proxy', 1);
+const PORT = process.env.PORT || 3000
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+const DATABASE_URL = process.env.DATABASE_URL || ''
+
+let pool
+function getPool(){
+  if (!DATABASE_URL) throw new Error('DATABASE_URL missing')
+  if (!pool) pool = mysql.createPool({ uri: DATABASE_URL, connectionLimit: 10, supportBigNumbers: true, dateStrings: true })
+  return pool
+}
+
+app.set('view engine', 'ejs')
+app.set('views', path.join(__dirname, 'views'))
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json({ limit: '256kb' }))
+app.use(helmet({
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      "script-src": ["'self'","'unsafe-inline'"],
+      "img-src": ["'self'","data:"],
+      "object-src": ["'none'"],
+      "base-uri": ["'self'"],
+      "frame-ancestors": ["'none'"]
+    }
+  },
+  referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+  crossOriginEmbedderPolicy: false
+}))
+app.use(compression())
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d' }))
+
+const limiter = rateLimit({ windowMs: 60_000, max: 60 })
+app.use(limiter)
+
+// Home
+app.get('/', (req, res) => res.render('home', { SITE }))
+
+// Submit form
+app.get('/submit', (req, res) => res.render('submit', { SITE }))
+
+// List testimonies
+app.get('/testimonies', async (req, res) => {
+  try{
+    const [rows] = await getPool().query(
+      "SELECT id, slug, title, COALESCE(lead,'') AS lead, createdAt FROM Testimony WHERE status='PUBLISHED' ORDER BY createdAt DESC LIMIT 50"
+    )
+    res.render('list', { items: rows, SITE })
+  } catch {
+    res.render('list', { items: [], SITE })
+  }
+})
+
+// View single
+app.get('/t/:slug', async (req, res) => {
+  try{
+    const [rows] = await getPool().query(
+      "SELECT id, title, lead, body, status, updatedAt FROM Testimony WHERE slug=? LIMIT 1",
+      [req.params.slug]
+    )
+    const t = rows[0]
+    if (!t || t.status !== 'PUBLISHED') return res.status(404).render('404', { SITE })
+    const safe = sanitizeHtml(String(t.body), {
+      allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img','h1','h2','h3']),
+      allowedSchemes: ['http','https','mailto']
+    })
+    res.render('detail', { t: { ...t, body: safe }, SITE })
+  } catch {
+    return res.status(404).render('404', { SITE })
+  }
+})
+
+// API: submit
+app.post('/api/submit', async (req, res) => {
+  try {
+    const { title, lead = '', body = '', tags = '' } = req.body || {}
+    if (!title || !body || String(title).length < 8 || String(body).length < 120) {
+      return res.status(400).json({ error: 'Please provide a longer title and body.' })
+    }
+    const clean = sanitizeHtml(String(body), { allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img','h1','h2','h3']), allowedSchemes: ['http','https','mailto'] })
+    const slug = slugify(String(title), { lower: true, strict: true })
+    const now = new Date()
+
+    const pool = getPool()
+
+    // upsert "guest" user
+    const email = 'guest@example.org'
+    const [u] = await pool.query("SELECT id FROM User WHERE email=?", [email])
+    let authorId = u?.[0]?.id
+    if (!authorId) {
+      authorId = cryptoRandomId()
+      await pool.query(
+        "INSERT INTO User (id,email,displayName,createdAt,updatedAt) VALUES (?,?,?,?,?)",
+        [authorId, email, 'Guest', now, now]
+      )
+    }
+
+    const id = cryptoRandomId()
+    const tagArr = Array.isArray(tags) ? tags : String(tags).split(',').map(s => s.trim()).filter(Boolean)
+
+    await pool.query(
+      "INSERT INTO Testimony (id, slug, title, lead, body, tags, status, authorId, createdAt, updatedAt) VALUES (?,?,?,?,?,?,?,?,?,?)",
+      [id, slug, String(title), lead || null, clean, JSON.stringify(tagArr), 'PUBLISHED', authorId, now, now]
+    )
+    res.json({ id, slug, status: 'PUBLISHED' })
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Server error' })
+  }
+})
+
+// Comments (held), Reactions, Flags
+const badWords = ['damn','hell']
+app.post('/api/comment', async (req,res)=>{
+  try {
+    const { testimonyId, body } = req.body || {}
+    if (!testimonyId || !body || String(body).length < 8) return res.status(400).json({error:'Short comment'})
+    if (badWords.some(w=> new RegExp(`\\b${w}\\b`,'i').test(body))) return res.status(400).json({error:'Please keep comments uplifting.'})
+    const id = cryptoRandomId()
+    const status = 'held'
+    const authorId = 'guest'
+    await getPool().query(
+      "INSERT INTO Comment (id,testimony_id,author_id,body,status) VALUES (?,?,?,?,?)",
+      [id, testimonyId, authorId, sanitizeHtml(body), status]
+    )
+    res.json({ id, status })
+  } catch (e) { console.error(e); res.status(500).json({error:'Server error'}) }
+})
+
+app.post('/api/react', async (req,res)=>{
+  try{
+    const { testimonyId, type } = req.body || {}
+    if (!['amen','felt_this','beautiful'].includes(type)) return res.status(400).json({error:'Invalid reaction'})
+    const userId = 'guest'
+    const id = cryptoRandomId()
+    await getPool().query(
+      "INSERT IGNORE INTO Reaction (id,testimony_id,user_id,type) VALUES (?,?,?,?)",
+      [id, testimonyId, userId, type]
+    )
+    const [rows] = await getPool().query(
+      "SELECT type, COUNT(*) c FROM Reaction WHERE testimony_id=? GROUP BY type",[testimonyId]
+    )
+    res.json({ counts: rows })
+  }catch(e){ console.error(e); res.status(500).json({error:'Server error'}) }
+})
+
+app.post('/api/flag', async (req,res)=>{
+  try{
+    const { targetType, targetId, reason } = req.body || {}
+    if (!['post','comment'].includes(targetType)) return res.status(400).json({error:'Invalid target'})
+    if (!['disrespect','hate','spam','off-topic','other'].includes(reason)) return res.status(400).json({error:'Invalid reason'})
+    const reporterId = 'guest'
+    const id = cryptoRandomId()
+    await getPool().query(
+      "INSERT INTO Flag (id,target_type,target_id,reason,reporter_id,weight) VALUES (?,?,?,?,?,?)",
+      [id, targetType, targetId, reason, reporterId, 1.0]
+    )
+    res.json({ ok:true })
+  }catch(e){ console.error(e); res.status(500).json({error:'Server error'}) }
+})
+
+// robots + sitemap
+app.get('/robots.txt', (req,res)=>{
+  res.type('text/plain').send(`User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\nHost: ${SITE}\n`)
+})
+app.get('/sitemap.xml', async (req,res)=>{
+  try{
+    const [rows] = await getPool().query(
+      "SELECT slug, updatedAt FROM Testimony WHERE status='PUBLISHED' ORDER BY updatedAt DESC LIMIT 1000"
+    )
+    const urls = rows.map(r => `<url><loc>${SITE}/t/${r.slug}</loc><lastmod>${new Date(r.updatedAt).toISOString()}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>`).join('')
+    res.type('application/xml').send(
+`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>${SITE}</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+<url><loc>${SITE}/testimonies</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+${urls}
+</urlset>`)
+  } catch {
+    res.type('application/xml').send(
+`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>${SITE}</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+<url><loc>${SITE}/testimonies</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+</urlset>`)
+  }
+})
+
+// 404
+app.use((req,res)=>res.status(404).render('404', { SITE }))
+
+app.listen(PORT, ()=> console.log(`Server listening on ${PORT}`))
+
+function cryptoRandomId(){
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c=>{
+    const r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8)
+    return v.toString(16)
+  })
+}
+
+// --- TEMP: approve held comments with a token ---
+// GET /admin/mod/approve?comment_id=...&token=...
+app.get('/admin/mod/approve', async (req,res) => {
+  try {
+    const { comment_id, token } = req.query
+    if (!token || token !== process.env.MOD_TOKEN) return res.status(403).send('Forbidden')
+    if (!comment_id) return res.status(400).send('Missing comment_id')
+
+    const [result] = await pool.execute(
+      "UPDATE Comment SET status='published' WHERE id=? AND status='held'",
+      [String(comment_id)]
+    )
+    res.json({ ok: true, comment_id, changed: result?.affectedRows ?? 0 })
+  } catch (e) {
+    res.status(500).json({ error: String(e?.message || e) })
+  }
+})
+
+// --- TEMP: approve held comments with a token ---
+// GET /admin/mod/approve?comment_id=...&token=...
+app.get('/admin/mod/approve', async (req,res) => {
+  try {
+    const { comment_id, token } = req.query
+    if (!token || token !== process.env.MOD_TOKEN) return res.status(403).send('Forbidden')
+    if (!comment_id) return res.status(400).send('Missing comment_id')
+
+    const [result] = await pool.execute(
+      "UPDATE Comment SET status='published' WHERE id=? AND status='held'",
+      [String(comment_id)]
+    )
+    res.json({ ok: true, comment_id, changed: result?.affectedRows ?? 0 })
+  } catch (e) {
+    res.status(500).json({ error: String(e?.message || e) })
+  }
+})

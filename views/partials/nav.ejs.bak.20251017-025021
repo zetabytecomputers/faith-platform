@@ -1,0 +1,12 @@
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="/"><span class="dot"></span><span>Share Light</span></a>
+    <nav class="actions">
+      <a class="btn outline" href="/stories">Stories</a>
+      <a class="btn outline" href="/images">Images</a>
+      <a class="btn outline" href="/videos">Videos</a>
+      <a class="btn brand" href="/submit">Share Yours</a>
+      <button class="btn theme-toggle" onclick="__toggleTheme()">🌓</button>
+    </nav>
+  </div>
+</header>

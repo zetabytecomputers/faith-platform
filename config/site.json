@@ -1,0 +1,12 @@
+{
+  "branding": {
+    "tagline": "The Light of Christ"
+  },
+  "nav": [
+    { "label": "Home", "href": "/" },
+    { "label": "Stories", "href": "/stories" },
+    { "label": "Images", "href": "/images" },
+    { "label": "Videos", "href": "/videos" },
+    { "label": "Favorite Scriptures", "href": "/favorites", "kind": "brand" }
+  ]
+}
