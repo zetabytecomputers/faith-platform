@@ -35,3 +35,6 @@ backups/
 *.bak.*
 *.tmp
 views/**/*.bak.*
+
+# Temp upload artifacts
+.tmp*/
